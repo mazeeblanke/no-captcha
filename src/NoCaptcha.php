@@ -7,8 +7,18 @@ use GuzzleHttp\Client;
 
 class NoCaptcha
 {
-    const CLIENT_API = 'https://www.google.com/recaptcha/api.js';
-    const VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+    /**
+     * The API url
+     *
+     * @var string
+     */
+    private $client_api = 'https://www.google.com/recaptcha/api.js';
+
+    /**
+     *  The verify url
+     *  @var string
+     */
+    private $verify_url = 'https://www.google.com/recaptcha/api/siteverify';
 
     /**
      * The recaptcha secret key.
@@ -43,11 +53,25 @@ class NoCaptcha
      * @param string $sitekey
      * @param array $options
      */
-    public function __construct($secret, $sitekey, $options = [])
+    public function __construct($secret, $sitekey, $options = [], $useGlobalCaptcha = false)
     {
+        $this->configCaptchaApi($useGlobalCaptcha);
         $this->secret = $secret;
         $this->sitekey = $sitekey;
         $this->http = new Client($options);
+    }
+
+    /**
+     *  Config API
+     *  @param bool $useGlobalCaptcha
+     *  @return void
+     */
+    private function configCaptchaApi($useGlobalCaptcha)
+    {
+        if ($useGlobalCaptcha) {
+            $this->client_api = 'https://www.recaptcha.net/recaptcha/api.js';
+            $this->verify_url = 'https://www.recaptcha.net/recaptcha/api/siteverify';
+        }
     }
 
     /**
@@ -173,7 +197,7 @@ class NoCaptcha
      */
     public function getJsLink($lang = null, $callback = false, $onLoadClass = 'onloadCallBack')
     {
-        $client_api = static::CLIENT_API;
+        $client_api = $this->client_api;
         $params = [];
 
         $callback ? $this->setCallBackParams($params, $onLoadClass)  : false;
@@ -201,7 +225,7 @@ class NoCaptcha
      */
     protected function sendRequestVerify(array $query = [])
     {
-        $response = $this->http->request('POST', static::VERIFY_URL, [
+        $response = $this->http->request('POST', $this->verify_url, [
             'form_params' => $query,
         ]);
 

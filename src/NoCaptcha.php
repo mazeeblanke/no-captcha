@@ -132,9 +132,11 @@ class NoCaptcha
      * @param string $onLoadClass
      * @return string
      */
-    public function renderJs($lang = null, $callback = false, $onLoadClass = 'onloadCallBack')
+    public function renderJs($lazyLoad = false, $lang = null, $callback = false, $onLoadClass = 'onloadCallBack')
     {
-        return '<script src="'.$this->getJsLink($lang, $callback, $onLoadClass).'" async defer></script>'."\n";
+        $lazyLoadAttr = $lazyLoad ? ' data-captcha ' : '';
+        $srcAttr = $lazyLoad ? ' data-src ' : 'src';
+        return '<script '. $lazyLoadAttr .' ' . $srcAttr.'="'.$this->getJsLink($lang, $callback, $onLoadClass).'" async defer></script>'."\n";
     }
 
     /**
